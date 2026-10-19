@@ -16,6 +16,7 @@ import com.example.data.model.ProductCategory
 import com.example.data.ota.GitHubReleaseInfo
 import com.example.data.ota.OtaUpdateManager
 import com.example.data.repository.CailingRepository
+import com.example.data.sync.FirestoreSyncManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -49,16 +50,27 @@ data class AdminUiState(
   val searchQuery: String = "",
   val activeTab: Int = 0,
   val notificationMessage: String? = null,
-  val isSyncing: Boolean = false
+  val isSyncing: Boolean = false,
+  val availableUpdateRelease: GitHubReleaseInfo? = null
 )
 
 class CailingAdminViewModel(application: Application) : AndroidViewModel(application) {
 
   private val repository: CailingRepository
+  val otaManager: OtaUpdateManager = OtaUpdateManager(application)
+  val syncManager: FirestoreSyncManager
+
+  private val _selectedCategory = MutableStateFlow(ProductCategory.TODOS)
+  private val _searchQuery = MutableStateFlow("")
+  private val _activeTab = MutableStateFlow(0)
+  private val _notificationMessage = MutableStateFlow<String?>(null)
+  private val _isSyncing = MutableStateFlow(false)
+  private val _availableUpdateRelease = MutableStateFlow<GitHubReleaseInfo?>(null)
 
   init {
     val database = CailingDatabase.getDatabase(application)
     repository = CailingRepository(database)
+    syncManager = FirestoreSyncManager(application, repository, viewModelScope)
     viewModelScope.launch {
       repository.initializeDefaultDataIfEmpty()
     }
@@ -69,13 +81,14 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
         repository.autoSyncHeartbeat()
       }
     }
+    // Comprobación silenciosa en segundo plano de actualizaciones publicadas en GitHub
+    viewModelScope.launch {
+      kotlinx.coroutines.delay(3500)
+      otaManager.checkLatestGitHubRelease().onSuccess { release ->
+        _availableUpdateRelease.value = release
+      }
+    }
   }
-
-  private val _selectedCategory = MutableStateFlow(ProductCategory.TODOS)
-  private val _searchQuery = MutableStateFlow("")
-  private val _activeTab = MutableStateFlow(0)
-  private val _notificationMessage = MutableStateFlow<String?>(null)
-  private val _isSyncing = MutableStateFlow(false)
 
   val uiState: StateFlow<AdminUiState> = combine(
     repository.getTodaySales(),
@@ -92,7 +105,8 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
     _searchQuery,
     _activeTab,
     _notificationMessage,
-    _isSyncing
+    _isSyncing,
+    _availableUpdateRelease
   ) { args: Array<Any?> ->
     @Suppress("UNCHECKED_CAST")
     val todaySales = args[0] as List<SaleEntity>
@@ -117,6 +131,7 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
     val tab = args[12] as Int
     val notif = args[13] as? String
     val syncing = args[14] as Boolean
+    val availableRelease = args[15] as? GitHubReleaseInfo
 
     val filteredProducts = allProducts.filter { product ->
       val matchesCategory = category == ProductCategory.TODOS ||
@@ -194,7 +209,8 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
       searchQuery = query,
       activeTab = tab,
       notificationMessage = notif,
-      isSyncing = syncing
+      isSyncing = syncing,
+      availableUpdateRelease = availableRelease
     )
   }.stateIn(
     scope = viewModelScope,
@@ -349,8 +365,6 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
     }
   }
 
-  val otaManager: OtaUpdateManager = OtaUpdateManager(getApplication())
-
   fun checkForGitHubUpdates(
     repoPath: String = OtaUpdateManager.DEFAULT_GITHUB_REPO,
     onResult: (GitHubReleaseInfo?, String?) -> Unit
@@ -392,6 +406,42 @@ class CailingAdminViewModel(application: Application) : AndroidViewModel(applica
         },
         onFailure = { err ->
           onError(err.message ?: "Error al descargar el archivo APK de GitHub")
+        }
+      )
+    }
+  }
+
+  fun testFirebaseCloud(onResult: (Boolean, String) -> Unit) {
+    viewModelScope.launch {
+      val res = syncManager.testCloudConnection()
+      res.fold(
+        onSuccess = { msg ->
+          _notificationMessage.value = msg
+          onResult(true, msg)
+        },
+        onFailure = { err ->
+          val errMsg = "Error de conexión con Firebase: ${err.message ?: "Sin respuesta del servidor"}"
+          _notificationMessage.value = errMsg
+          onResult(false, errMsg)
+        }
+      )
+    }
+  }
+
+  fun syncAllToCloud(onResult: (Boolean, String) -> Unit) {
+    viewModelScope.launch {
+      _isSyncing.value = true
+      val res = syncManager.uploadAllLocalDataToCloud()
+      _isSyncing.value = false
+      res.fold(
+        onSuccess = { msg ->
+          _notificationMessage.value = msg
+          onResult(true, msg)
+        },
+        onFailure = { err ->
+          val errMsg = "Error de sincronización: ${err.message ?: "Error desconocido"}"
+          _notificationMessage.value = errMsg
+          onResult(false, errMsg)
         }
       )
     }

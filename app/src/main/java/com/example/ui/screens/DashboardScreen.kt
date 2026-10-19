@@ -307,7 +307,12 @@ fun DashboardScreen(
 
     // Banner de Actualización Remota del Sistema (OTA)
     item {
-      val isAlreadyUpdated = state.deviceInfo?.appVersion == "v1.3.0"
+      val installedVer = state.deviceInfo?.appVersion?.ifBlank { "v1.2.0" } ?: "v1.2.0"
+      val latestRelease = state.availableUpdateRelease
+      val targetVer = latestRelease?.tagName ?: "v1.3.0"
+      val hasNewRelease = targetVer != installedVer
+      val isAlreadyUpdated = !hasNewRelease
+
       Surface(
         shape = RoundedCornerShape(16.dp),
         color = if (isAlreadyUpdated) PastelMintCard else PastelLavenderCard,
@@ -343,7 +348,7 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.width(10.dp))
             Column {
               Text(
-                text = if (isAlreadyUpdated) "Sistema Actualizado (v1.3.0)" else "Nueva Versión Disponible (v1.3.0)",
+                text = if (isAlreadyUpdated) "Sistema Actualizado ($installedVer)" else "Nueva Versión Disponible ($targetVer)",
                 style = MaterialTheme.typography.bodyMedium.copy(
                   fontWeight = FontWeight.Bold,
                   fontSize = 13.sp,
@@ -351,7 +356,7 @@ fun DashboardScreen(
                 )
               )
               Text(
-                text = if (isAlreadyUpdated) "Terminales sincronizadas con las últimas mejoras" else "Filtro 'Sin mora', códigos CL-0001 y más mejoras",
+                text = if (isAlreadyUpdated) "Terminales sincronizadas con las últimas mejoras" else if (latestRelease != null) "Disponible en GitHub • Toca para actualizar" else "Filtro 'Sin mora', códigos CL-0001 y más mejoras",
                 style = MaterialTheme.typography.bodySmall.copy(
                   fontSize = 11.sp,
                   color = PastelTextSecondary

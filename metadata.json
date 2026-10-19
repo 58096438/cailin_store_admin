@@ -1,6 +1,6 @@
 {
-  "name": "Cailin Store",
-  "description": "App de supervisión en tiempo real para la dueña de Cailin Store: inventario de accesorios, dinero del día, desglose de pagos, clientes, créditos y alertas.",
+  "name": "Amor y Café",
+  "description": "Sitio y aplicación interactiva para 'Amor y Café' en Waslala. Menú gastronómico con paleta lila, rosa y café, selección de platillos y pedidos instantáneos por WhatsApp.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

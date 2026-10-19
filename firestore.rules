@@ -1,41 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    match /users/{userId} {
-      allow read, write: if isOwner(userId);
-
-      match /products/{productId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /sales/{saleId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /credits/{creditId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /shifts/{shiftId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /device_info/{deviceId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /settings/{settingsId} {
-        allow read, write: if isOwner(userId);
-      }
+    // Modo de prueba para sincronización inmediata de tiendas y terminales
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }

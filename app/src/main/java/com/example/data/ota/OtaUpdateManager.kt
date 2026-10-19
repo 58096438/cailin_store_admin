@@ -36,7 +36,7 @@ class OtaUpdateManager(private val context: Context) {
 
   companion object {
     private const val TAG = "OtaUpdateManager"
-    const val DEFAULT_GITHUB_REPO = "carlitosrivera84593326/rigut-manager"
+    const val DEFAULT_GITHUB_REPO = "58096438/cailin_store_admin"
   }
 
   private val client: OkHttpClient = OkHttpClient.Builder()

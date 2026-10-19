@@ -7,88 +7,61 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val AccentIndigo = PastelLavenderAccent // Indigo / Royal Lavender
-val AccentEmerald = PastelMintAccent // Emerald / Sage
-val AccentRose = PastelRoseAccent // Rose / Ruby
-val AccentGold = PastelPeachAccent // Amber / Luxury Gold
-val AccentOcean = PastelSkyAccent // Ocean / Sapphire
-
-fun getAccentColor(name: String): Color {
-  return when (name.uppercase()) {
-    "EMERALD" -> AccentEmerald
-    "ROSE" -> AccentRose
-    "GOLD" -> AccentGold
-    "OCEAN" -> AccentOcean
-    else -> AccentIndigo
-  }
-}
-
 private val LightColorScheme = lightColorScheme(
-  primary = CailingPrimary,
-  onPrimary = CailingOnPrimary,
-  primaryContainer = CailingPrimaryContainer,
-  onPrimaryContainer = CailingOnPrimaryContainer,
-  secondary = CailingSecondary,
-  onSecondary = CailingOnSecondary,
-  secondaryContainer = CailingSecondaryContainer,
-  onSecondaryContainer = CailingOnSecondaryContainer,
-  tertiary = CailingTertiary,
-  onTertiary = CailingOnTertiary,
-  tertiaryContainer = CailingTertiaryContainer,
-  onTertiaryContainer = CailingOnTertiaryContainer,
-  background = CailingBackground,
-  onBackground = CailingOnBackground,
-  surface = CailingSurface,
-  onSurface = CailingOnSurface,
-  surfaceVariant = CailingSurfaceVariant,
-  onSurfaceVariant = CailingOnSurfaceVariant,
-  outline = CailingOutline,
-  outlineVariant = CailingOutlineVariant
+  primary = CafeEspresso,
+  onPrimary = Color.White,
+  primaryContainer = CafeSuave,
+  onPrimaryContainer = CafeEspressoDark,
+  secondary = LilaPrimary,
+  onSecondary = Color.White,
+  secondaryContainer = LilaPastel,
+  onSecondaryContainer = LilaDeep,
+  tertiary = RosaBlush,
+  onTertiary = Color.White,
+  tertiaryContainer = RosaPastel,
+  onTertiaryContainer = RosaDeep,
+  background = Color(0xFFFAF6F2),
+  onBackground = CafeEspressoDark,
+  surface = Color.White,
+  onSurface = CafeEspressoDark,
+  surfaceVariant = Color(0xFFF4EDE4),
+  onSurfaceVariant = CafeLatte,
+  outline = Color(0xFFEADBCE),
+  outlineVariant = Color(0xFFF2E9E1)
 )
 
 private val DarkColorScheme = darkColorScheme(
-  primary = Color(0xFFF1F5F9),
-  onPrimary = Color(0xFF0F172A),
-  primaryContainer = Color(0xFF1E293B),
-  onPrimaryContainer = Color(0xFFF8FAFC),
-  secondary = Color(0xFF818CF8),
-  onSecondary = Color(0xFF0F172A),
-  secondaryContainer = Color(0xFF312E81),
-  onSecondaryContainer = Color(0xFFE0E7FF),
-  tertiary = Color(0xFF2DD4BF),
-  onTertiary = Color(0xFF042F2E),
-  tertiaryContainer = Color(0xFF134E4A),
-  onTertiaryContainer = Color(0xFFCCFBF1),
-  background = Color(0xFF0B1120),
-  onBackground = Color(0xFFF8FAFC),
-  surface = Color(0xFF131D31),
-  onSurface = Color(0xFFF8FAFC),
-  surfaceVariant = Color(0xFF1E293B),
-  onSurfaceVariant = Color(0xFF94A3B8),
-  outline = Color(0xFF334155),
-  outlineVariant = Color(0xFF1E293B)
+  primary = LilaPastel,
+  onPrimary = CafeEspressoDark,
+  primaryContainer = CafeMoka,
+  onPrimaryContainer = Color.White,
+  secondary = RosaBlush,
+  onSecondary = Color(0xFF1E0E14),
+  secondaryContainer = Color(0xFF4C1D34),
+  onSecondaryContainer = RosaPastel,
+  tertiary = LilaPrimary,
+  onTertiary = Color.White,
+  tertiaryContainer = Color(0xFF3B1D6B),
+  onTertiaryContainer = LilaPastel,
+  background = Color(0xFF18100C),
+  onBackground = Color(0xFFFDF8F5),
+  surface = Color(0xFF241812),
+  onSurface = Color(0xFFFDF8F5),
+  surfaceVariant = Color(0xFF31221A),
+  onSurfaceVariant = Color(0xFFD4C3B7),
+  outline = Color(0xFF422E23),
+  outlineVariant = Color(0xFF2D1F17)
 )
 
 @Composable
 fun MyApplicationTheme(
-  darkTheme: Boolean = false,
-  accentColorName: String = "INDIGO",
-  content: @Composable () -> Unit,
+  darkTheme: Boolean = isSystemInDarkTheme(),
+  content: @Composable () -> Unit
 ) {
-  ThemeState.isDark = darkTheme
-  ThemeState.accentName = accentColorName
-
-  val baseColorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-  val activeAccent = getAccentColor(accentColorName)
-
-  // Dynamically tailor primary and secondary to the chosen accent
-  val dynamicScheme = baseColorScheme.copy(
-    primary = if (darkTheme) activeAccent else Color(0xFF1E293B),
-    secondary = activeAccent
-  )
+  val colors = if (ThemeState.isDark || darkTheme) DarkColorScheme else LightColorScheme
 
   MaterialTheme(
-    colorScheme = dynamicScheme,
+    colorScheme = colors,
     typography = Typography,
     content = content
   )

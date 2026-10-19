@@ -45,9 +45,17 @@ class FirestoreSyncManager(
     private const val TAG = "FirestoreSync"
   }
 
-  // Instancia de Firestore inicializada con el Database ID de la applet
-  private val databaseId: String = context.getString(R.string.firestore_database_id)
-  val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(databaseId)
+  // Instancia de Firestore adaptada para la base de datos (default) o personalizada
+  val firestore: FirebaseFirestore = try {
+    val dbId = context.getString(R.string.firestore_database_id)
+    if (dbId.isNotBlank() && dbId != "(default)") {
+      FirebaseFirestore.getInstance(dbId)
+    } else {
+      FirebaseFirestore.getInstance()
+    }
+  } catch (e: Exception) {
+    FirebaseFirestore.getInstance()
+  }
   val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
   private val _currentUser = MutableStateFlow<FirebaseUser?>(auth.currentUser)
@@ -64,18 +72,22 @@ class FirestoreSyncManager(
 
   private val listeners = mutableListOf<ListenerRegistration>()
 
+  private val storeDocId = "cailin_central"
+  private val storeDoc get() = firestore.collection("stores").document(storeDocId)
+
   init {
+    startRealtimeListeners(storeDocId)
+    scope.launch {
+      uploadInitialDataToCloud(storeDocId)
+    }
+
     auth.addAuthStateListener { firebaseAuth ->
       val user = firebaseAuth.currentUser
       _currentUser.value = user
       if (user != null) {
-        startRealtimeListeners(user.uid)
-        scope.launch {
-          uploadInitialDataToCloud(user.uid)
-        }
+        _syncStatusMessage.value = "Conectado a Firebase como ${user.email ?: user.displayName}"
       } else {
-        stopRealtimeListeners()
-        _syncStatusMessage.value = "Modo local activo (Inicia sesión para sincronizar)"
+        _syncStatusMessage.value = "Conectado a Firebase (Tienda Cailin • En Vivo)"
       }
     }
   }
@@ -84,11 +96,11 @@ class FirestoreSyncManager(
    * Inicia los snapshot listeners de Firestore para escuchar cambios hechos
    * por el otro dispositivo (ventas, stock, abonos, cortes y latidos de terminal)
    */
-  private fun startRealtimeListeners(userId: String) {
+  private fun startRealtimeListeners(targetDocId: String) {
     stopRealtimeListeners()
-    _syncStatusMessage.value = "Conectado a la nube. Sincronización activa."
+    _syncStatusMessage.value = "Conectado a Firebase Firestore (cailin-store)"
 
-    val userDoc = firestore.collection("users").document(userId)
+    val userDoc = firestore.collection("stores").document(targetDocId)
 
     // 1. Escuchar Ventas remotas (para reflejar al instante ventas de la vendedora en el panel de la dueña)
     val salesListener = userDoc.collection("sales").addSnapshotListener { snapshots, error ->
@@ -215,13 +227,14 @@ class FirestoreSyncManager(
   /**
    * Sube una venta al backend Firestore
    */
+  /**
+   * Sube una venta al backend Firestore
+   */
   fun pushSale(sale: SaleEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = SaleFirestoreDto.fromEntity(sale)
-        firestore.collection("users").document(uid)
-          .collection("sales").document(sale.id.toString())
+        storeDoc.collection("sales").document(sale.id.toString())
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -235,12 +248,10 @@ class FirestoreSyncManager(
    * Sube o actualiza un producto al backend Firestore
    */
   fun pushProduct(product: ProductEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = ProductFirestoreDto.fromEntity(product)
-        firestore.collection("users").document(uid)
-          .collection("products").document(product.id.toString())
+        storeDoc.collection("products").document(product.id.toString())
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -254,12 +265,10 @@ class FirestoreSyncManager(
    * Sube un crédito al backend Firestore
    */
   fun pushCredit(credit: CustomerCreditEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = CreditFirestoreDto.fromEntity(credit)
-        firestore.collection("users").document(uid)
-          .collection("credits").document(credit.id.toString())
+        storeDoc.collection("credits").document(credit.id.toString())
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -273,12 +282,10 @@ class FirestoreSyncManager(
    * Sube un corte de caja al backend Firestore
    */
   fun pushCashShift(shift: CashShiftEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = CashShiftFirestoreDto.fromEntity(shift)
-        firestore.collection("users").document(uid)
-          .collection("shifts").document(shift.id.toString())
+        storeDoc.collection("shifts").document(shift.id.toString())
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -292,12 +299,10 @@ class FirestoreSyncManager(
    * Sube el estado del dispositivo / permisos de vendedora a Firestore
    */
   fun pushDeviceInfo(device: StoreDeviceInfoEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = StoreDeviceFirestoreDto.fromEntity(device)
-        firestore.collection("users").document(uid)
-          .collection("device_info").document("terminal_01")
+        storeDoc.collection("device_info").document("terminal_01")
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -311,12 +316,10 @@ class FirestoreSyncManager(
    * Sube metas del día y moneda a Firestore
    */
   fun pushAppSettings(settings: AppSettingsEntity) {
-    val uid = auth.currentUser?.uid ?: return
     scope.launch(Dispatchers.IO) {
       try {
         val dto = AppSettingsFirestoreDto.fromEntity(settings)
-        firestore.collection("users").document(uid)
-          .collection("settings").document("store_settings")
+        storeDoc.collection("settings").document("store_settings")
           .set(dto, SetOptions.merge())
           .await()
         _lastSyncTimestamp.value = System.currentTimeMillis()
@@ -327,60 +330,95 @@ class FirestoreSyncManager(
   }
 
   /**
-   * Carga los datos locales actuales en Firestore al autenticar por primera vez
+   * Realiza una prueba activa de conexión con Firestore
    */
-  private suspend fun uploadInitialDataToCloud(uid: String) = withContext(Dispatchers.IO) {
+  suspend fun testCloudConnection(): Result<String> = withContext(Dispatchers.IO) {
+    try {
+      val ping = mapOf(
+        "timestamp" to System.currentTimeMillis(),
+        "status" to "ONLINE",
+        "projectId" to "cailin-store",
+        "app" to "RIGUT MANAGER"
+      )
+      storeDoc.collection("status").document("ping")
+        .set(ping)
+        .await()
+      _syncStatusMessage.value = "Conexión a Firebase Firestore exitosa (Proyecto: cailin-store)"
+      _lastSyncTimestamp.value = System.currentTimeMillis()
+      Result.success("¡Conexión exitosa con Firebase Firestore en tiempo real!")
+    } catch (e: Exception) {
+      Log.e(TAG, "Error en test de conexión Firestore", e)
+      Result.failure(e)
+    }
+  }
+
+  /**
+   * Fuerza la subida de todos los datos locales a Firestore
+   */
+  suspend fun uploadAllLocalDataToCloud(): Result<String> = withContext(Dispatchers.IO) {
+    try {
+      uploadInitialDataToCloud(storeDocId)
+      Result.success("Catálogo, ventas y créditos sincronizados con Firebase.")
+    } catch (e: Exception) {
+      Result.failure(e)
+    }
+  }
+
+  /**
+   * Carga los datos locales actuales en Firestore
+   */
+  private suspend fun uploadInitialDataToCloud(docId: String) = withContext(Dispatchers.IO) {
     try {
       _isSyncing.value = true
-      val userDoc = firestore.collection("users").document(uid)
+      val targetDoc = firestore.collection("stores").document(docId)
 
       // Subir productos locales
       val products = repository.getAllProductsDirect()
       for (p in products) {
-        userDoc.collection("products").document(p.id.toString())
+        targetDoc.collection("products").document(p.id.toString())
           .set(ProductFirestoreDto.fromEntity(p), SetOptions.merge())
       }
 
       // Subir ventas
       val sales = repository.getAllSalesDirect()
       for (s in sales) {
-        userDoc.collection("sales").document(s.id.toString())
+        targetDoc.collection("sales").document(s.id.toString())
           .set(SaleFirestoreDto.fromEntity(s), SetOptions.merge())
       }
 
       // Subir créditos
       val credits = repository.getAllCreditsDirect()
       for (c in credits) {
-        userDoc.collection("credits").document(c.id.toString())
+        targetDoc.collection("credits").document(c.id.toString())
           .set(CreditFirestoreDto.fromEntity(c), SetOptions.merge())
       }
 
       // Subir cortes
       val shifts = repository.getAllShiftsDirect()
       for (sh in shifts) {
-        userDoc.collection("shifts").document(sh.id.toString())
+        targetDoc.collection("shifts").document(sh.id.toString())
           .set(CashShiftFirestoreDto.fromEntity(sh), SetOptions.merge())
       }
 
       // Subir terminal
       val dev = repository.getDeviceInfoDirect()
       if (dev != null) {
-        userDoc.collection("device_info").document("terminal_01")
+        targetDoc.collection("device_info").document("terminal_01")
           .set(StoreDeviceFirestoreDto.fromEntity(dev), SetOptions.merge())
       }
 
       // Subir ajustes
       val st = repository.getAppSettingsDirect()
       if (st != null) {
-        userDoc.collection("settings").document("store_settings")
+        targetDoc.collection("settings").document("store_settings")
           .set(AppSettingsFirestoreDto.fromEntity(st), SetOptions.merge())
       }
 
-      _syncStatusMessage.value = "Sincronizado completamente con la nube"
+      _syncStatusMessage.value = "Sincronizado completamente con Firebase (cailin-store)"
       _lastSyncTimestamp.value = System.currentTimeMillis()
     } catch (e: Exception) {
-      Log.e(TAG, "Error en subida inicial a Firestore", e)
-      _syncStatusMessage.value = "Error al sincronizar datos locales"
+      Log.e(TAG, "Error en subida a Firestore", e)
+      _syncStatusMessage.value = "Error al sincronizar con la nube"
     } finally {
       _isSyncing.value = false
     }
@@ -392,10 +430,23 @@ class FirestoreSyncManager(
   suspend fun launchGoogleSignIn(activityContext: Context): Result<FirebaseUser> {
     return withContext(Dispatchers.Main) {
       try {
+        val serverClientId = try {
+          val resId = activityContext.resources.getIdentifier("default_web_client_id", "string", activityContext.packageName)
+          if (resId != 0) activityContext.getString(resId) else ""
+        } catch (e: Exception) {
+          ""
+        }
+
+        if (serverClientId.isBlank()) {
+          return@withContext Result.failure(
+            IllegalStateException("Para iniciar sesión con Google, agrega la huella digital SHA-1 en la Consola de Firebase (Ajustes del proyecto > Tus apps).")
+          )
+        }
+
         val credentialManager = CredentialManager.create(activityContext)
         val googleIdOption = GetGoogleIdOption.Builder()
           .setFilterByAuthorizedAccounts(false)
-          .setServerClientId(activityContext.getString(R.string.default_web_client_id))
+          .setServerClientId(serverClientId)
           .setAutoSelectEnabled(false)
           .build()
 

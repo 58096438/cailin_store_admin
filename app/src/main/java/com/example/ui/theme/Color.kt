@@ -6,168 +6,75 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 /**
- * Global reactive theme state used across Compose layout and styling.
- * When `isDark` changes, all dynamic color getters automatically recompose.
+ * Global reactive theme state for 'Amor y Café' in Waslala.
+ * Palette: Tonos Lila, Rosa y Café (Espresso & Moka).
  */
 object ThemeState {
   var isDark by mutableStateOf(false)
-  var accentName by mutableStateOf("INDIGO")
 }
 
-// Dynamic Pastel & Dark Palette (RIGUT MANAGER)
-val PastelBackground: Color
-  get() = if (ThemeState.isDark) Color(0xFF0B1120) else Color(0xFFF7F4F0)
+// -------------------------------------------------------------
+// PALETA 'AMOR Y CAFÉ' - WASLALA (LILA, ROSA & CAFÉ)
+// -------------------------------------------------------------
 
-val PastelSurface: Color
-  get() = if (ThemeState.isDark) Color(0xFF131D31) else Color(0xFFFFFDFC)
+// Café Tostado / Espresso & Moka
+val CafeEspressoDark = Color(0xFF2C1810) // Café tostado profundo
+val CafeEspresso = Color(0xFF3E2215)     // Café espresso intenso
+val CafeMoka = Color(0xFF5C3622)         // Café moka cálido
+val CafeLatte = Color(0xFF7E4F36)        // Café con leche
+val CafeCaramelo = Color(0xFFB47248)     // Caramelo Waslala
+val CafeSuave = Color(0xFFE8D7CA)        // Café crema suave
+val CafeCremaLight = Color(0xFFF9F5F1)   // Crema de leche
 
-val PastelSurfaceVariant: Color
-  get() = if (ThemeState.isDark) Color(0xFF1E293B) else Color(0xFFF0EAE1)
+// Tonos Lila / Lavanda
+val LilaPrimary = Color(0xFF8B5CF6)      // Lila vibrante
+val LilaDeep = Color(0xFF6D28D9)         // Lila profundo
+val LilaPastel = Color(0xFFC4B5FD)       // Lila pastel suave
+val LilaSoftBg = Color(0xFFF5F3FF)       // Fondo lila aireado
+val LilaBorder = Color(0xFFDDD6FE)       // Borde lila sutil
+val LilaCard = Color(0xFFEDE9FE)         // Tarjeta lila tenue
 
-val PastelBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF27354E) else Color(0xFFE5DFD7)
+// Tonos Rosa / Blush & Frambuesa
+val RosaBlush = Color(0xFFF472B6)        // Rosa empolvado / blush
+val RosaDeep = Color(0xFFE11D48)         // Rosa frambuesa acento
+val RosaPastel = Color(0xFFFBCFE8)       // Rosa pastel suave
+val RosaSoftBg = Color(0xFFFFF1F2)       // Fondo rosa claro
+val RosaBorder = Color(0xFFFECDD3)       // Borde rosa
+val RosaCard = Color(0xFFFDF2F8)         // Tarjeta rosa suave
 
-val PastelBorderSoft: Color
-  get() = if (ThemeState.isDark) Color(0xFF1A263C) else Color(0xFFEFE9E2)
+// Fondos & Superficies dinámicas
+val AmorBackground: Color
+  get() = if (ThemeState.isDark) Color(0xFF18100C) else Color(0xFFFAF6F2)
 
-// Text Colors (High Contrast & Clear legibility in both light and dark modes)
-val PastelTextPrimary: Color
-  get() = if (ThemeState.isDark) Color(0xFFF8FAFC) else Color(0xFF1E293B)
+val AmorSurface: Color
+  get() = if (ThemeState.isDark) Color(0xFF241812) else Color(0xFFFFFFFF)
 
-val PastelTextSecondary: Color
-  get() = if (ThemeState.isDark) Color(0xFF94A3B8) else Color(0xFF475569)
+val AmorSurfaceVariant: Color
+  get() = if (ThemeState.isDark) Color(0xFF31221A) else Color(0xFFF4EDE4)
 
-val PastelTextMuted: Color
-  get() = if (ThemeState.isDark) Color(0xFF64748B) else Color(0xFF64748B)
+val AmorBorder: Color
+  get() = if (ThemeState.isDark) Color(0xFF422E23) else Color(0xFFEADBCE)
 
-// Cards & Badges (Liquid Glass deep hues in dark mode, gentle pastel in light mode)
-val PastelRoseCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF26141D) else Color(0xFFFFF0F3)
+val AmorBorderSoft: Color
+  get() = if (ThemeState.isDark) Color(0xFF2D1F17) else Color(0xFFF2E9E1)
 
-val PastelRoseBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF4E1D31) else Color(0xFFFECDD6)
+// Tipografía y Textos de alto contraste
+val AmorTextPrimary: Color
+  get() = if (ThemeState.isDark) Color(0xFFFDF8F5) else Color(0xFF2C1810)
 
-val PastelRoseAccent: Color = Color(0xFFE11D48)
+val AmorTextSecondary: Color
+  get() = if (ThemeState.isDark) Color(0xFFD4C3B7) else Color(0xFF6B5345)
 
-val PastelLavenderCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF1C1935) else Color(0xFFF4F0FD)
+val AmorTextMuted: Color
+  get() = if (ThemeState.isDark) Color(0xFFA18E82) else Color(0xFF968073)
 
-val PastelLavenderBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF37326B) else Color(0xFFDDD6FE)
+// Colores de componentes y tarjetas con temática Amor y Café
+val AmorHeroLila: Color = Color(0xFF8B5CF6)
+val AmorHeroRosa: Color = Color(0xFFF472B6)
+val AmorHeroCafe: Color = Color(0xFF5C3622)
 
-val PastelLavenderAccent: Color = Color(0xFF6366F1)
-
-val PastelMintCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF10241A) else Color(0xFFEEF9F2)
-
-val PastelMintBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF1A4833) else Color(0xFFBBEFCE)
-
-val PastelMintAccent: Color = Color(0xFF059669)
-
-val PastelPeachCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF261810) else Color(0xFFFFF4EC)
-
-val PastelPeachBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF52301A) else Color(0xFFFED8B8)
-
-val PastelPeachAccent: Color = Color(0xFFD97706)
-
-val PastelSkyCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF0E2034) else Color(0xFFEFF8FF)
-
-val PastelSkyBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF1B3F64) else Color(0xFFBAE6FD)
-
-val PastelSkyAccent: Color = Color(0xFF0284C7)
-
-val PastelGoldCard: Color
-  get() = if (ThemeState.isDark) Color(0xFF231C0E) else Color(0xFFFEF9EE)
-
-val PastelGoldBorder: Color
-  get() = if (ThemeState.isDark) Color(0xFF4C3C18) else Color(0xFFFDE68A)
-
-val PastelGoldAccent: Color = Color(0xFFB45309)
-
-// Primary Brand & UI
-val CailingPrimary: Color
-  get() = if (ThemeState.isDark) getAccentColor(ThemeState.accentName) else Color(0xFF1E293B)
-
-val CailingOnPrimary: Color
-  get() = Color.White
-
-val CailingPrimaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFF1E293B) else Color(0xFFF1EAE2)
-
-val CailingOnPrimaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFFF8FAFC) else Color(0xFF1E293B)
-
-val CailingSecondary: Color = Color(0xFF6366F1)
-val CailingOnSecondary: Color = Color(0xFFFFFFFF)
-
-val CailingSecondaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFF312E81) else Color(0xFFEEF2FF)
-
-val CailingOnSecondaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFFE0E7FF) else Color(0xFF3730A3)
-
-val CailingTertiary: Color = Color(0xFF0D9488)
-val CailingOnTertiary: Color = Color(0xFFFFFFFF)
-
-val CailingTertiaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFF134E4A) else Color(0xFFCCFBF1)
-
-val CailingOnTertiaryContainer: Color
-  get() = if (ThemeState.isDark) Color(0xFFCCFBF1) else Color(0xFF115E59)
-
-val CailingBackground: Color get() = PastelBackground
-val CailingOnBackground: Color get() = PastelTextPrimary
-val CailingSurface: Color get() = PastelSurface
-val CailingOnSurface: Color get() = PastelTextPrimary
-val CailingSurfaceVariant: Color get() = PastelSurfaceVariant
-val CailingOnSurfaceVariant: Color get() = PastelTextSecondary
-val CailingOutline: Color get() = PastelBorder
-val CailingOutlineVariant: Color get() = PastelBorderSoft
-
-// Live status and pill colors
-val LivePillBg: Color get() = PastelSkyCard
-val LivePillText: Color get() = PastelSkyAccent
-val LiveDotGreen: Color = Color(0xFF10B981)
-
-val StatGreen: Color = PastelMintAccent
-val StatGreenBg: Color get() = PastelMintCard
-
-val StatIndigo: Color = PastelLavenderAccent
-val StatIndigoBg: Color get() = PastelLavenderCard
-
-val StatCyan: Color = PastelSkyAccent
-val StatCyanBg: Color get() = PastelSkyCard
-
-val StatRose: Color = PastelRoseAccent
-val StatRoseBg: Color get() = PastelRoseCard
-
-val InventoryGood: Color = Color(0xFF059669)
-val InventoryWarning: Color = Color(0xFFD97706)
-val InventoryDanger: Color = Color(0xFFDC2626)
-
-// Payment Methods & Status Badges
-val PaymentCash: Color = PastelPeachAccent
-val PaymentCashBg: Color get() = PastelPeachCard
-
-val PaymentTransfer: Color = PastelSkyAccent
-val PaymentTransferBg: Color get() = PastelSkyCard
-
-val PaymentCard: Color = PastelLavenderAccent
-val PaymentCardBg: Color get() = PastelLavenderCard
-
-val PaymentCredit: Color = PastelRoseAccent
-val PaymentCreditBg: Color get() = PastelRoseCard
-
-val StockOptimal: Color = PastelMintAccent
-val StockOptimalBg: Color get() = PastelMintCard
-val StockLow: Color = Color(0xFFDC2626)
-val StockLowBg: Color
-  get() = if (ThemeState.isDark) Color(0xFF331414) else Color(0xFFFEE2E2)
-
-val StockWarning: Color = PastelPeachAccent
-val StockWarningBg: Color get() = PastelPeachCard
+// Estados de disponibilidad
+val StatusOpenGreen = Color(0xFF10B981)
+val StatusOpenGreenBg = Color(0xFFECFDF5)
+val WaslalaMountainGreen = Color(0xFF047857)
+val WaslalaGold = Color(0xFFD97706)

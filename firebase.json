@@ -1,7 +1,7 @@
 {
   "firestore": [
     {
-      "database": "ai-studio-android-cailings-b4e19854-d31a-45d5-bed1-353cc6508c50",
+      "database": "(default)",
       "rules": "firestore.rules"
     }
   ],
