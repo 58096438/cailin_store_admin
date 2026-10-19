@@ -1,6 +1,6 @@
 {
-  "name": "Amor y Café",
-  "description": "Sitio y aplicación interactiva para 'Amor y Café' en Waslala. Menú gastronómico con paleta lila, rosa y café, selección de platillos y pedidos instantáneos por WhatsApp.",
+  "name": "Cailin Store",
+  "description": "Sistema de administración de tienda de ropa, inventario de prendas, ventas y punto de venta POS para Cailin Store.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

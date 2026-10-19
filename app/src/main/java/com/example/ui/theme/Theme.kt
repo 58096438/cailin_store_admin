@@ -8,57 +8,61 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-  primary = CafeEspresso,
+  primary = CailingPrimary,
   onPrimary = Color.White,
-  primaryContainer = CafeSuave,
-  onPrimaryContainer = CafeEspressoDark,
-  secondary = LilaPrimary,
+  primaryContainer = Color(0xFFE0E7FF),
+  onPrimaryContainer = Color(0xFF312E81),
+  secondary = PastelRoseAccent,
   onSecondary = Color.White,
-  secondaryContainer = LilaPastel,
-  onSecondaryContainer = LilaDeep,
-  tertiary = RosaBlush,
+  secondaryContainer = PastelRoseCard,
+  onSecondaryContainer = Color(0xFF881337),
+  tertiary = PastelLavenderAccent,
   onTertiary = Color.White,
-  tertiaryContainer = RosaPastel,
-  onTertiaryContainer = RosaDeep,
-  background = Color(0xFFFAF6F2),
-  onBackground = CafeEspressoDark,
-  surface = Color.White,
-  onSurface = CafeEspressoDark,
-  surfaceVariant = Color(0xFFF4EDE4),
-  onSurfaceVariant = CafeLatte,
-  outline = Color(0xFFEADBCE),
-  outlineVariant = Color(0xFFF2E9E1)
+  tertiaryContainer = PastelLavenderCard,
+  onTertiaryContainer = Color(0xFF3730A3),
+  background = PastelBackground,
+  onBackground = PastelTextPrimary,
+  surface = PastelSurface,
+  onSurface = PastelTextPrimary,
+  surfaceVariant = PastelSurfaceVariant,
+  onSurfaceVariant = PastelTextSecondary,
+  outline = PastelBorder,
+  outlineVariant = PastelBorderSoft
 )
 
 private val DarkColorScheme = darkColorScheme(
-  primary = LilaPastel,
-  onPrimary = CafeEspressoDark,
-  primaryContainer = CafeMoka,
-  onPrimaryContainer = Color.White,
-  secondary = RosaBlush,
-  onSecondary = Color(0xFF1E0E14),
-  secondaryContainer = Color(0xFF4C1D34),
-  onSecondaryContainer = RosaPastel,
-  tertiary = LilaPrimary,
-  onTertiary = Color.White,
-  tertiaryContainer = Color(0xFF3B1D6B),
-  onTertiaryContainer = LilaPastel,
-  background = Color(0xFF18100C),
-  onBackground = Color(0xFFFDF8F5),
-  surface = Color(0xFF241812),
-  onSurface = Color(0xFFFDF8F5),
-  surfaceVariant = Color(0xFF31221A),
-  onSurfaceVariant = Color(0xFFD4C3B7),
-  outline = Color(0xFF422E23),
-  outlineVariant = Color(0xFF2D1F17)
+  primary = Color(0xFF818CF8),
+  onPrimary = Color(0xFF1E1B4B),
+  primaryContainer = Color(0xFF312E81),
+  onPrimaryContainer = Color(0xFFE0E7FF),
+  secondary = Color(0xFFFB7185),
+  onSecondary = Color(0xFF4C0519),
+  secondaryContainer = Color(0xFF881337),
+  onSecondaryContainer = Color(0xFFFFE4E6),
+  tertiary = Color(0xFFA5B4FC),
+  onTertiary = Color(0xFF1E1B4B),
+  tertiaryContainer = Color(0xFF3730A3),
+  onTertiaryContainer = Color(0xFFE0E7FF),
+  background = PastelBackground,
+  onBackground = PastelTextPrimary,
+  surface = PastelSurface,
+  onSurface = PastelTextPrimary,
+  surfaceVariant = PastelSurfaceVariant,
+  onSurfaceVariant = PastelTextSecondary,
+  outline = PastelBorder,
+  outlineVariant = PastelBorderSoft
 )
 
 @Composable
 fun MyApplicationTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
+  accentColorName: String = "INDIGO",
   content: @Composable () -> Unit
 ) {
-  val colors = if (ThemeState.isDark || darkTheme) DarkColorScheme else LightColorScheme
+  ThemeState.isDark = darkTheme
+  ThemeState.accentName = accentColorName
+
+  val colors = if (darkTheme) DarkColorScheme else LightColorScheme
 
   MaterialTheme(
     colorScheme = colors,

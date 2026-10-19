@@ -3,70 +3,46 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Soft circular aura in pastel lilac -->
-    <path
-        android:fillColor="#33C4B5FD"
-        android:pathData="M54,54m-38,0a38,38 0 1,1 76,0a38,38 0 1,1 -76,0" />
-    
-    <!-- Cup saucer in warm cream/blush -->
-    <path
-        android:fillColor="#FBCFE8"
-        android:pathData="M30,73 C30,73 34,77 54,77 C74,77 78,73 78,73 C78,73 75,79 54,79 C33,79 30,73 30,73 Z" />
 
-    <!-- Coffee Cup Body in soft elegant lilac -->
+    <!-- Soft glow / aura behind bag -->
     <path
-        android:fillColor="#DDD6FE"
-        android:pathData="M34,44 L74,44 C74,44 74,66 54,66 C34,66 34,44 34,44 Z" />
+        android:fillColor="#22C7D2FE"
+        android:pathData="M54,54m-34,0a34,34 0 1,1 68,0a34,34 0 1,1 -68,0" />
 
-    <!-- Cup Rim in blush pink -->
+    <!-- Shopping bag body -->
     <path
-        android:fillColor="#F472B6"
-        android:pathData="M34,43 L74,43 C75.1,43 76,43.9 76,45 C76,46.1 75.1,47 74,47 L34,47 C32.9,47 32,46.1 32,45 C32,43.9 32.9,43 34,43 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M33,45 L75,45 C76.5,45 77.8,46.1 78,47.6 L81,77 C81.2,78.7 79.9,80 78.2,80 L29.8,80 C28.1,80 26.8,78.7 27,77 L30,47.6 C30.2,46.1 31.5,45 33,45 Z" />
 
-    <!-- Cup Handle in lilac -->
+    <!-- Bag fold accent in soft lilac/indigo -->
     <path
-        android:strokeColor="#DDD6FE"
+        android:fillColor="#E0E7FF"
+        android:pathData="M33,45 L75,45 L73,50 L35,50 Z" />
+
+    <!-- Bag handles -->
+    <path
+        android:strokeColor="#FFFFFF"
         android:strokeWidth="3.5"
-        android:fillColor="#00000000"
-        android:pathData="M73,48 C79,48 83,52 83,56 C83,61 77,63 71,63" />
-
-    <!-- Coffee surface inside cup in warm dark espresso -->
-    <path
-        android:fillColor="#4A2810"
-        android:pathData="M36,46 C41,48 67,48 72,46 C70,52 63,55 54,55 C45,55 38,52 36,46 Z" />
-
-    <!-- Heart Latte Art inside cup in blush rose pink -->
-    <path
-        android:fillColor="#F472B6"
-        android:pathData="M54,53 C52,50 49,49 48,51 C46.8,52.5 48.5,54.2 54,57 C59.5,54.2 61.2,52.5 60,51 C59,49 56,50 54,53 Z" />
-
-    <!-- Steaming Heart Aroma Rising in vibrant rose & lilac -->
-    <!-- Heart steam -->
-    <path
-        android:fillColor="#F43F5E"
-        android:pathData="M54,34 C51.5,30.5 47,29.5 45.5,32.5 C43.8,34.8 46.2,37.2 54,41.5 C61.8,37.2 64.2,34.8 62.5,32.5 C61,29.5 56.5,30.5 54,34 Z" />
-
-    <!-- Left steam swirl in pastel lilac -->
-    <path
-        android:strokeColor="#C4B5FD"
-        android:strokeWidth="2.5"
         android:strokeLineCap="round"
         android:fillColor="#00000000"
-        android:pathData="M43,36 C40,33 42,27 45,24" />
+        android:pathData="M44,45 C44,35 64,35 64,45" />
 
-    <!-- Right steam swirl in pastel lilac -->
+    <!-- Clothes Hanger inside bag in brand accent color -->
     <path
-        android:strokeColor="#C4B5FD"
+        android:strokeColor="#6366F1"
         android:strokeWidth="2.5"
         android:strokeLineCap="round"
+        android:strokeLineJoin="round"
         android:fillColor="#00000000"
-        android:pathData="M65,36 C68,33 66,27 63,24" />
+        android:pathData="M54,53 C54,50 56,49 57,51 C57.8,52.5 56.5,54 54,56 L42,66 L66,66 Z" />
 
-    <!-- Small decorative stars / coffee sparkles in soft pink -->
+    <!-- Boutique Sparkle Top-Right -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M73,32 L75,37 L80,39 L75,41 L73,46 L71,41 L66,39 L71,37 Z" />
+
+    <!-- Boutique Sparkle Small Left -->
     <path
         android:fillColor="#FBCFE8"
-        android:pathData="M36,30 L37,32 L39,33 L37,34 L36,36 L35,34 L33,33 L35,32 Z" />
-    <path
-        android:fillColor="#FBCFE8"
-        android:pathData="M71,28 L72,30 L74,31 L72,32 L71,34 L70,32 L68,31 L70,30 Z" />
+        android:pathData="M30,38 L31.5,41.5 L35,43 L31.5,44.5 L30,48 L28.5,44.5 L25,43 L28.5,41.5 Z" />
 </vector>
