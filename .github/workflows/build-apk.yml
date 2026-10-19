@@ -18,15 +18,21 @@ jobs:
   build:
     name: Compilar APK en la nube
     runs-on: ubuntu-latest
+    env:
+      JAVA_TOOL_OPTIONS: "-Djava.awt.headless=true"
 
     steps:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
-      - name: Restaurar debug.keystore y .env
+      - name: Restaurar o generar debug.keystore y .env
         run: |
           if [ -f debug.keystore.base64 ]; then
             base64 -d debug.keystore.base64 > debug.keystore
+          fi
+          if [ ! -f debug.keystore ]; then
+            keytool -genkeypair -alias androiddebugkey -storepass android -keypass android \
+              -keystore debug.keystore -dname "CN=Android Debug, O=Android, C=US" -storetype JKS
           fi
           if [ ! -f .env ] && [ -f .env.example ]; then
             cp .env.example .env
@@ -49,9 +55,9 @@ jobs:
         run: |
           if [ -f gradlew ]; then
             chmod +x gradlew
-            ./gradlew assembleDebug --no-daemon --stacktrace
+            ./gradlew assembleDebug --no-daemon --stacktrace -Djava.awt.headless=true
           else
-            gradle assembleDebug --no-daemon --stacktrace
+            gradle assembleDebug --no-daemon --stacktrace -Djava.awt.headless=true
           fi
 
       - name: Localizar y preparar archivo APK
