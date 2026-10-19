@@ -1,0 +1,77 @@
+name: Compilar y Publicar APK (OTA)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Etiqueta de versión (ejemplo: v1.3.0)'
+        required: true
+        default: 'v1.3.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Compilar APK en la nube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Restaurar debug.keystore
+        run: |
+          if [ -f debug.keystore.base64 ]; then
+            base64 -d debug.keystore.base64 > debug.keystore
+          fi
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Generar APK de Android
+        run: |
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug --no-daemon
+          else
+            gradle assembleDebug --no-daemon
+          fi
+
+      - name: Localizar y preparar archivo APK
+        id: prepare_apk
+        run: |
+          TAG="${{ github.event.inputs.version_tag || github.ref_name }}"
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "Error: No se encontró ningún archivo APK generado"
+            exit 1
+          fi
+          TARGET_NAME="rigut_manager_${TAG}.apk"
+          cp "$APK_PATH" "$TARGET_NAME"
+          echo "apk_path=$TARGET_NAME" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "APK preparado: $TARGET_NAME"
+
+      - name: Crear Release en GitHub y adjuntar APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prepare_apk.outputs.tag_name }}
+          name: RIGUT MANAGER ${{ steps.prepare_apk.outputs.tag_name }}
+          body: |
+            ## Actualización de Sistema OTA (Over-The-Air)
+            - Compilación automática generada en la nube para RIGUT MANAGER.
+            - Versión: ${{ steps.prepare_apk.outputs.tag_name }}
+            - Descarga e instala directamente en tu teléfono o terminal en tienda.
+          files: ${{ steps.prepare_apk.outputs.apk_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
