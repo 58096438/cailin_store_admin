@@ -25,26 +25,24 @@ jobs:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
-      - name: Restaurar o generar debug.keystore y .env
+      - name: Configurar Java 21 (Requerido por AGP 9.1 y Kotlin 2.2)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Restaurar debug.keystore y .env
         run: |
           if [ -f debug.keystore.base64 ]; then
             base64 -d debug.keystore.base64 > debug.keystore
-          fi
-          if [ ! -f debug.keystore ]; then
-            keytool -genkeypair -alias androiddebugkey -storepass android -keypass android \
-              -keystore debug.keystore -dname "CN=Android Debug, O=Android, C=US" -storetype JKS
+          else
+            echo "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" | base64 -d > debug.keystore
           fi
           if [ ! -f .env ] && [ -f .env.example ]; then
             cp .env.example .env
           elif [ ! -f .env ]; then
             touch .env
           fi
-
-      - name: Configurar Java 21 (Requerido por AGP 9.1 y Kotlin 2.2)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
 
       - name: Configurar Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v3
