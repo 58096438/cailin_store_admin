@@ -146,11 +146,11 @@ class CailingRepository(private val database: CailingDatabase) {
 
       val initialSales = listOf(
         SaleEntity(
-          receiptNumber = "TK-08",
+          receiptNumber = "08",
           timestamp = baseTime - 6 * 60 * 1000,
           totalAmount = 18.0,
           paymentMethod = PaymentMethod.EFECTIVO.name,
-          itemsSummary = "1x Collar Circonias Brillante",
+          itemsSummary = "1x Top Casual Algodón",
           sellerName = "Ana Martínez (Turno Tienda)",
           terminalId = "Terminal Tienda #1",
           notes = "Alerta: Cobrado a precio costo ($18.00). Margen 0.0%",
@@ -161,7 +161,7 @@ class CailingRepository(private val database: CailingDatabase) {
           discountApplied = 17.0
         ),
         SaleEntity(
-          receiptNumber = "TK-07",
+          receiptNumber = "07",
           timestamp = baseTime - 12 * 60 * 1000,
           totalAmount = 89.0,
           paymentMethod = PaymentMethod.TARJETA.name,
@@ -171,7 +171,7 @@ class CailingRepository(private val database: CailingDatabase) {
           notes = "Pago aprobado Terminal Tarjeta"
         ),
         SaleEntity(
-          receiptNumber = "TK-06",
+          receiptNumber = "06",
           timestamp = baseTime - 39 * 60 * 1000,
           totalAmount = 125.0,
           paymentMethod = PaymentMethod.TRANSFERENCIA.name,
@@ -181,7 +181,7 @@ class CailingRepository(private val database: CailingDatabase) {
           notes = "Transferencia Zelle / Banco"
         ),
         SaleEntity(
-          receiptNumber = "TK-05",
+          receiptNumber = "05",
           timestamp = baseTime - 84 * 60 * 1000,
           totalAmount = 110.0,
           paymentMethod = PaymentMethod.EFECTIVO.name,
@@ -191,18 +191,17 @@ class CailingRepository(private val database: CailingDatabase) {
           notes = "Efectivo en caja"
         ),
         SaleEntity(
-          receiptNumber = "TK-04",
+          receiptNumber = "04",
           timestamp = baseTime - 109 * 60 * 1000,
           totalAmount = 65.0,
           paymentMethod = PaymentMethod.TARJETA.name,
-          itemsSummary = "Set Accesorios & Bolso",
+          itemsSummary = "Falda Plisada & Cinturón",
           sellerName = "Ana Martínez (Turno Tienda)",
           terminalId = "Terminal Mostrador #1",
           notes = "Mastercard / Tarjeta"
         ),
-        // Additional sales to reach ~$1,485.00 today
         SaleEntity(
-          receiptNumber = "TK-03",
+          receiptNumber = "03",
           timestamp = baseTime - 175 * 60 * 1000,
           totalAmount = 450.0,
           paymentMethod = PaymentMethod.TRANSFERENCIA.name,
@@ -211,7 +210,7 @@ class CailingRepository(private val database: CailingDatabase) {
           terminalId = "Terminal Mostrador #1"
         ),
         SaleEntity(
-          receiptNumber = "TK-02",
+          receiptNumber = "02",
           timestamp = baseTime - 230 * 60 * 1000,
           totalAmount = 390.0,
           paymentMethod = PaymentMethod.EFECTIVO.name,
@@ -220,11 +219,11 @@ class CailingRepository(private val database: CailingDatabase) {
           terminalId = "Terminal Mostrador #1"
         ),
         SaleEntity(
-          receiptNumber = "TK-01",
+          receiptNumber = "01",
           timestamp = baseTime - 310 * 60 * 1000,
           totalAmount = 256.0,
           paymentMethod = PaymentMethod.TARJETA.name,
-          itemsSummary = "Juego Joyería Boutique y Accesorios",
+          itemsSummary = "Conjunto Sastre Elegante y Blusa",
           sellerName = "Ana Martínez",
           terminalId = "Terminal Mostrador #1"
         )
@@ -464,7 +463,8 @@ class CailingRepository(private val database: CailingDatabase) {
     val totalAmount = customAmount ?: (product.price * quantity)
     val now = System.currentTimeMillis()
     val currentSalesCount = saleDao.countSales()
-    val receiptNum = String.format(Locale.US, "TK-%02d", currentSalesCount + 1)
+    val consecutiveNumber = currentSalesCount + 1
+    val receiptNum = "0$consecutiveNumber"
     val unitSoldPrice = totalAmount / quantity.coerceAtLeast(1)
     val regularUnit = product.price
     val costUnit = product.costPrice

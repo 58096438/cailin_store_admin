@@ -55,7 +55,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import com.example.ui.theme.PastelSurfaceVariant
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.ui.platform.LocalContext
+import com.example.util.formatConsecutiveTicket
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -305,78 +315,79 @@ fun DashboardScreen(
       }
     }
 
-    // Banner de Actualización Remota del Sistema (OTA)
-    item {
-      val installedVer = state.deviceInfo?.appVersion?.ifBlank { "v1.2.0" } ?: "v1.2.0"
-      val latestRelease = state.availableUpdateRelease
-      val targetVer = latestRelease?.tagName ?: "v1.3.0"
-      val hasNewRelease = targetVer != installedVer
-      val isAlreadyUpdated = !hasNewRelease
+    // Banner de Actualización Remota del Sistema (OTA) - ÚNICAMENTE DISPONIBLE SI HAY ACTUALIZACIÓN PENDIENTE
+    val installedVer = state.deviceInfo?.appVersion?.ifBlank { "v1.2.0" } ?: "v1.2.0"
+    val latestRelease = state.availableUpdateRelease
+    val targetVer = latestRelease?.tagName
+    val hasPendingUpdate = targetVer != null && targetVer.isNotBlank() && targetVer.removePrefix("v").trim() != installedVer.removePrefix("v").trim()
 
-      Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = if (isAlreadyUpdated) PastelMintCard else PastelLavenderCard,
-        border = BorderStroke(1.dp, if (isAlreadyUpdated) PastelMintAccent.copy(alpha = 0.5f) else PastelLavenderAccent.copy(alpha = 0.45f)),
-        modifier = Modifier
-          .fillMaxWidth()
-          .clickable { showUpdateDialog = true }
-          .testTag("dashboard_ota_update_banner")
-      ) {
-        Row(
-          modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.SpaceBetween
+    if (hasPendingUpdate) {
+      item {
+        Surface(
+          shape = RoundedCornerShape(16.dp),
+          color = PastelLavenderCard,
+          border = BorderStroke(1.dp, PastelLavenderAccent.copy(alpha = 0.45f)),
+          modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showUpdateDialog = true }
+            .testTag("dashboard_ota_update_banner")
         ) {
           Row(
-            modifier = Modifier.weight(1f, fill = false),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
           ) {
-            Box(
-              modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(if (isAlreadyUpdated) PastelMintAccent.copy(alpha = 0.18f) else PastelLavenderAccent.copy(alpha = 0.18f)),
-              contentAlignment = Alignment.Center
+            Row(
+              modifier = Modifier.weight(1f, fill = false),
+              verticalAlignment = Alignment.CenterVertically
             ) {
-              Icon(
-                imageVector = if (isAlreadyUpdated) Icons.Default.CheckCircle else Icons.Default.CloudDownload,
-                contentDescription = null,
-                tint = if (isAlreadyUpdated) PastelMintAccent else PastelLavenderAccent,
-                modifier = Modifier.size(20.dp)
-              )
+              Box(
+                modifier = Modifier
+                  .size(36.dp)
+                  .clip(CircleShape)
+                  .background(PastelLavenderAccent.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+              ) {
+                Icon(
+                  imageVector = Icons.Default.CloudDownload,
+                  contentDescription = null,
+                  tint = PastelLavenderAccent,
+                  modifier = Modifier.size(20.dp)
+                )
+              }
+              Spacer(modifier = Modifier.width(10.dp))
+              Column {
+                Text(
+                  text = "Nueva Versión Disponible ($targetVer)",
+                  style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = PastelTextPrimary
+                  )
+                )
+                Text(
+                  text = "Hay una actualización pendiente de CAILIN STORE • Toca para actualizar",
+                  style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 11.sp,
+                    color = PastelTextSecondary
+                  )
+                )
+              }
             }
-            Spacer(modifier = Modifier.width(10.dp))
-            Column {
+            Surface(
+              shape = RoundedCornerShape(8.dp),
+              color = PastelLavenderAccent
+            ) {
               Text(
-                text = if (isAlreadyUpdated) "Sistema Actualizado ($installedVer)" else "Nueva Versión Disponible ($targetVer)",
-                style = MaterialTheme.typography.bodyMedium.copy(
+                text = "Actualizar",
+                style = MaterialTheme.typography.labelSmall.copy(
                   fontWeight = FontWeight.Bold,
-                  fontSize = 13.sp,
-                  color = PastelTextPrimary
-                )
-              )
-              Text(
-                text = if (isAlreadyUpdated) "Terminales sincronizadas con las últimas mejoras" else if (latestRelease != null) "Disponible en GitHub • Toca para actualizar" else "Filtro 'Sin mora', códigos CL-0001 y más mejoras",
-                style = MaterialTheme.typography.bodySmall.copy(
                   fontSize = 11.sp,
-                  color = PastelTextSecondary
-                )
+                  color = Color.White
+                ),
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
               )
             }
-          }
-          Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = if (isAlreadyUpdated) PastelMintAccent else PastelLavenderAccent
-          ) {
-            Text(
-              text = if (isAlreadyUpdated) "Al día" else "Actualizar",
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
-                color = Color.White
-              ),
-              modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-            )
           }
         }
       }
@@ -481,7 +492,7 @@ fun DashboardScreen(
             displaySales.forEach { sale ->
               RecentSaleItem(
                 name = sale.itemsSummary.ifBlank { "Accesorio Boutique" },
-                meta = "${timeFmt.format(java.util.Date(sale.timestamp))} • ${sale.paymentMethod} • #${sale.receiptNumber}",
+                meta = "${timeFmt.format(java.util.Date(sale.timestamp))} • ${sale.paymentMethod} • #${formatConsecutiveTicket(sale.receiptNumber)}",
                 amount = "+$cur ${String.format(java.util.Locale.US, "%,.2f", sale.totalAmount)}",
                 icon = Icons.Default.ShoppingBag
               )
@@ -863,9 +874,10 @@ fun DashboardScreen(
       ?.trim()
       ?.ifBlank { "Galaxy A54" } ?: "Galaxy A54"
     val installedVer = state.deviceInfo?.appVersion?.ifBlank { "v1.2.0" } ?: "v1.2.0"
+    val targetVer = state.availableUpdateRelease?.tagName
     RemoteUpdateDialog(
       currentVersion = installedVer,
-      newVersion = "v1.3.0",
+      newVersion = targetVer ?: "v1.3.0",
       targetDeviceName = cleanDeviceName,
       batteryPercentage = state.deviceInfo?.batteryPercentage ?: 87,
       onDismiss = { showUpdateDialog = false },
@@ -875,6 +887,7 @@ fun DashboardScreen(
       }
     )
   }
+
 }
 
 @Composable

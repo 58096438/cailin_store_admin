@@ -297,6 +297,10 @@ fun CailingAdminApp(
             3 -> SettingsScreen(
               deviceInfo = state.deviceInfo,
               appSettings = state.appSettings,
+              sales = state.allSales,
+              products = state.allProducts,
+              credits = state.allCredits,
+              shifts = state.cashShifts,
               onRefreshTerminal = { viewModel.refreshTerminalHeartbeat() },
               onUpdateSettings = { newSettings -> viewModel.updateAppSettings(newSettings) },
               onUpdateThemeMode = { mode -> viewModel.updateThemeMode(mode) },

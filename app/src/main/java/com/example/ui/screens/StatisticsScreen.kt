@@ -1366,9 +1366,9 @@ fun StatisticsScreen(
 
               Spacer(modifier = Modifier.height(2.dp))
 
-              // SUBTÍTULO: TICKET, HORA Y VENDEDORA
+              // SUBTÍTULO: TICKET CONSECUTIVO, HORA Y VENDEDORA
               Text(
-                text = "Ticket #${sale.receiptNumber} • ${timeFormatter.format(Date(sale.timestamp))} • ${sale.sellerName}",
+                text = "Ticket #${com.example.util.formatConsecutiveTicket(sale.receiptNumber)} • ${timeFormatter.format(Date(sale.timestamp))} • ${sale.sellerName}",
                 style = MaterialTheme.typography.bodySmall.copy(
                   color = PastelTextSecondary,
                   fontSize = 11.sp,

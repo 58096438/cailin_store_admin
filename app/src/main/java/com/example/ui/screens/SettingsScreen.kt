@@ -47,7 +47,20 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.ui.platform.LocalContext
+import com.example.data.local.entity.CashShiftEntity
+import com.example.data.local.entity.CustomerCreditEntity
+import com.example.data.local.entity.ProductEntity
+import com.example.data.local.entity.SaleEntity
+import com.example.util.ReportExportManager
+import com.example.util.ReportFormat
+import com.example.util.ReportSection
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -119,6 +132,10 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
   deviceInfo: StoreDeviceInfoEntity?,
   appSettings: AppSettingsEntity = AppSettingsEntity(),
+  sales: List<SaleEntity> = emptyList(),
+  products: List<ProductEntity> = emptyList(),
+  credits: List<CustomerCreditEntity> = emptyList(),
+  shifts: List<CashShiftEntity> = emptyList(),
   onRefreshTerminal: () -> Unit = {},
   onUpdateSettings: (AppSettingsEntity) -> Unit = {},
   onUpdateThemeMode: (String) -> Unit = {},
@@ -132,6 +149,10 @@ fun SettingsScreen(
   onDeployRemoteUpdate: (String, String) -> Unit = { _, _ -> },
   modifier: Modifier = Modifier
 ) {
+  val context = LocalContext.current
+  val cur = appSettings.currencySymbol.ifBlank { "C$" }
+  var selectedReportSection by remember { mutableStateOf(ReportSection.TODO) }
+  var selectedReportFormat by remember { mutableStateOf(ReportFormat.PDF) }
   val device = deviceInfo ?: StoreDeviceInfoEntity()
   val cleanPhoneName = device.deviceName
     .replace(Regex("\\s*\\(Mostrador.*?\\)", RegexOption.IGNORE_CASE), "")
@@ -877,7 +898,274 @@ fun SettingsScreen(
     }
 
     // =========================================================================
-    // CONTENEDOR 5: ACTUALIZACIONES REMOTAS DEL SISTEMA Y CONTROL DE VERSIONES
+    // CONTENEDOR 5: EXPORTACIÓN DE REPORTES Y DATOS (EXCLUSIVO DUEÑA)
+    // =========================================================================
+    SettingsContainerCard(
+      title = "EXPORTACIÓN DE REPORTES",
+      subtitle = "Descarga o comparte datos en PDF, Excel o Word (Solo Dueña)",
+      icon = Icons.Default.Assessment,
+      iconBg = PastelSkyCard,
+      iconTint = PastelSkyAccent
+    ) {
+      Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = PastelSkyCard,
+        border = BorderStroke(1.dp, PastelSkyBorder),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        Row(
+          modifier = Modifier.padding(10.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = PastelSkyAccent,
+            modifier = Modifier.size(16.dp)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+            text = "Módulo exclusivo de la dueña. Todos los tickets se exportan con numeración consecutiva oficial (01, 02... 0123...).",
+            style = MaterialTheme.typography.bodySmall.copy(
+              fontSize = 11.sp,
+              color = PastelTextPrimary,
+              fontWeight = FontWeight.Medium
+            )
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Text(
+        text = "1. Selecciona la Información a Exportar",
+        style = MaterialTheme.typography.labelSmall.copy(
+          fontWeight = FontWeight.Bold,
+          color = PastelTextPrimary,
+          fontSize = 12.sp
+        )
+      )
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+      ) {
+        val sections = listOf(
+          Triple(ReportSection.TODO, "Reporte General (Todo)", "Inventario, ventas, tickets, créditos y caja"),
+          Triple(ReportSection.INVENTARIO, "Inventario de Prendas", "${products.size} artículos registrados"),
+          Triple(ReportSection.VENTAS, "Historial de Ventas y Tickets", "${sales.size} ventas con tickets consecutivos"),
+          Triple(ReportSection.CREDITOS, "Créditos y Cuentas por Cobrar", "${credits.size} clientes registrados"),
+          Triple(ReportSection.CAJA, "Turnos y Cortes de Caja", "${shifts.size} turnos de mostrador")
+        )
+
+        sections.forEach { (sec, label, sub) ->
+          val isSelected = selectedReportSection == sec
+          Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = if (isSelected) PastelSkyCard else PastelSurfaceVariant,
+            border = BorderStroke(
+              width = if (isSelected) 1.5.dp else 1.dp,
+              color = if (isSelected) PastelSkyAccent else PastelBorderSoft
+            ),
+            modifier = Modifier
+              .fillMaxWidth()
+              .clickable { selectedReportSection = sec }
+              .testTag("export_section_${sec.name.lowercase()}")
+          ) {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text(
+                  text = label,
+                  style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    color = PastelTextPrimary
+                  )
+                )
+                Text(
+                  text = sub,
+                  style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 11.sp,
+                    color = PastelTextSecondary
+                  )
+                )
+              }
+              if (isSelected) {
+                Box(
+                  modifier = Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(PastelSkyAccent),
+                  contentAlignment = Alignment.Center
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Seleccionado",
+                    tint = Color.White,
+                    modifier = Modifier.size(14.dp)
+                  )
+                }
+              }
+            }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Text(
+        text = "2. Selecciona el Formato",
+        style = MaterialTheme.typography.labelSmall.copy(
+          fontWeight = FontWeight.Bold,
+          color = PastelTextPrimary,
+          fontSize = 12.sp
+        )
+      )
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+      ) {
+        val formats = listOf(
+          Triple(ReportFormat.PDF, "PDF", Icons.Default.Description),
+          Triple(ReportFormat.EXCEL, "Excel", Icons.Default.TableChart),
+          Triple(ReportFormat.WORD, "Word", Icons.Default.Edit)
+        )
+
+        formats.forEach { (fmt, name, icon) ->
+          val isSelected = selectedReportFormat == fmt
+          Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = if (isSelected) PastelLavenderCard else PastelSurfaceVariant,
+            border = BorderStroke(
+              width = if (isSelected) 1.5.dp else 1.dp,
+              color = if (isSelected) PastelLavenderAccent else PastelBorderSoft
+            ),
+            modifier = Modifier
+              .weight(1f)
+              .clickable { selectedReportFormat = fmt }
+              .testTag("export_format_${fmt.name.lowercase()}")
+          ) {
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 6.dp),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) PastelLavenderAccent else PastelTextSecondary,
+                modifier = Modifier.size(20.dp)
+              )
+              Spacer(modifier = Modifier.height(4.dp))
+              Text(
+                text = name,
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 11.sp,
+                  color = if (isSelected) PastelLavenderAccent else PastelTextPrimary
+                )
+              )
+            }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      // Botones de acción directa para Descargar o Compartir
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+      ) {
+        Button(
+          onClick = {
+            ReportExportManager.downloadReport(
+              context = context,
+              section = selectedReportSection,
+              format = selectedReportFormat,
+              currencySymbol = cur,
+              products = products,
+              sales = sales,
+              credits = credits,
+              shifts = shifts
+            )
+          },
+          modifier = Modifier
+            .weight(1f)
+            .height(48.dp)
+            .testTag("export_download_button"),
+          shape = RoundedCornerShape(12.dp),
+          colors = ButtonDefaults.buttonColors(
+            containerColor = PastelSkyAccent,
+            contentColor = Color.White
+          )
+        ) {
+          Icon(
+            imageVector = Icons.Default.FileDownload,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+          )
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+            text = "Descargar",
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+          )
+        }
+
+        Button(
+          onClick = {
+            ReportExportManager.shareReport(
+              context = context,
+              section = selectedReportSection,
+              format = selectedReportFormat,
+              currencySymbol = cur,
+              products = products,
+              sales = sales,
+              credits = credits,
+              shifts = shifts
+            )
+          },
+          modifier = Modifier
+            .weight(1f)
+            .height(48.dp)
+            .testTag("export_share_button"),
+          shape = RoundedCornerShape(12.dp),
+          colors = ButtonDefaults.buttonColors(
+            containerColor = PastelLavenderCard,
+            contentColor = PastelLavenderAccent
+          ),
+          border = BorderStroke(1.dp, PastelLavenderAccent.copy(alpha = 0.5f))
+        ) {
+          Icon(
+            imageVector = Icons.Default.Share,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+          )
+          Spacer(modifier = Modifier.width(6.dp))
+          Text(
+            text = "Compartir",
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+          )
+        }
+      }
+    }
+
+    // =========================================================================
+    // CONTENEDOR 6: ACTUALIZACIONES REMOTAS DEL SISTEMA Y CONTROL DE VERSIONES
     // =========================================================================
     Card(
       modifier = Modifier

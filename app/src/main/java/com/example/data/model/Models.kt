@@ -16,12 +16,13 @@ enum class PaymentMethod(val displayName: String, val code: String) {
 
 enum class ProductCategory(val displayName: String) {
   TODOS("Todos"),
-  ARETES("Aretes"),
-  COLLARES("Collares"),
-  PULSERAS("Pulseras"),
-  ANILLOS("Anillos"),
-  CABELLO("Cabello y Broches"),
-  BOLSOS("Bolsos y Carteras")
+  VESTIDOS("Vestidos & Enterizos"),
+  BLUSAS("Blusas & Tops"),
+  PANTALONES("Pantalones & Jeans"),
+  FALDAS("Faldas & Conjuntos"),
+  CHAQUETAS("Chaquetas & Abrigos"),
+  CALZADO("Calzado & Zapatos"),
+  BOLSOS("Bolsos & Accesorios")
 }
 
 enum class CreditStatus(val displayName: String) {

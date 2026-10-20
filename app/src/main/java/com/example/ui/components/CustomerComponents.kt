@@ -439,7 +439,8 @@ fun CustomerDetailSheetContent(
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    // Botón de WhatsApp sin el texto eliminado debajo
+    // Botón de Cobro por WhatsApp
+    val hasPending = customer.remainingBalance > 0
     Button(
       onClick = onWhatsAppClick,
       modifier = Modifier.fillMaxWidth(),
@@ -449,13 +450,13 @@ fun CustomerDetailSheetContent(
     ) {
       Icon(
         imageVector = Icons.Default.Chat,
-        contentDescription = "Enviar mensaje por WhatsApp",
+        contentDescription = "Cobrar por WhatsApp",
         tint = Color.White,
         modifier = Modifier.size(18.dp)
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(
-        text = "Enviar Mensaje por WhatsApp",
+        text = if (hasPending) "Cobrar por WhatsApp ($currencySymbol ${String.format(Locale.US, "%,.2f", customer.remainingBalance)})" else "Contactar por WhatsApp",
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp
       )
@@ -1018,13 +1019,14 @@ fun launchWhatsAppDirect(
   remainingBalance: Double,
   currencySymbol: String
 ) {
-  val phoneWithCountry = if (!phone.startsWith("+")) {
-    "+52${phone.replace(" ", "").replace("-", "")}"
-  } else {
-    phone.replace(" ", "").replace("-", "")
-  }
+  val cleanPhone = phone.replace(" ", "").replace("+", "").replace("-", "")
+  val phoneWithCountry = if (cleanPhone.length == 8) "505$cleanPhone" else cleanPhone
 
-  val message = "Hola $customerName, te saludamos con mucho cariño de CAILIN STORE. Te escribimos para recordarte que cuentas con un saldo pendiente de $currencySymbol ${String.format(Locale.US, "%,.2f", remainingBalance)}. Quedamos a tus órdenes para registrar tu abono en tienda o vía transferencia. ¡Que tengas un excelente día!"
+  val message = if (remainingBalance > 0) {
+    "Hola *$customerName*, le saludamos cordialmente de *CAILIN STORE* ✨.\n\nLe escribimos para recordarle amablemente que en su cuenta de tienda cuenta con un saldo pendiente por valor de: *$currencySymbol ${String.format(Locale.US, "%,.2f", remainingBalance)}*.\n\nPuede realizar su abono directamente en nuestra tienda o por transferencia bancaria. Si ya realizó su abono, favor omitir este mensaje. ¡Muchas gracias por su preferencia!"
+  } else {
+    "Hola *$customerName*, le saludamos con mucho aprecio de *CAILIN STORE* ✨. Agradecemos su preferencia y quedamos a su disposición en tienda para cualquier consulta o nueva compra. ¡Que tenga un excelente día!"
+  }
 
   val url = "https://api.whatsapp.com/send?phone=$phoneWithCountry&text=${Uri.encode(message)}"
   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {

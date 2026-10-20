@@ -450,7 +450,7 @@ private fun RiskySaleAlertCard(
 
           Column {
             Text(
-              text = sale.receiptNumber,
+              text = "Ticket #${com.example.util.formatConsecutiveTicket(sale.receiptNumber)}",
               style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
@@ -632,7 +632,8 @@ private fun RiskySaleAlertCard(
         // Contactar a la vendedora por WhatsApp
         Button(
           onClick = {
-            val waMessage = "Hola Ana, desde el sistema administrativo noté que en el ticket ${sale.receiptNumber} se cobró ${sale.itemsSummary} a $currencySymbol ${String.format(Locale.US, "%.2f", sale.totalAmount)} (precio costo o con pérdida). Por favor verifica los márgenes autorizados antes de aplicar rebajas en mostrador. Saludos."
+            val formattedTicket = com.example.util.formatConsecutiveTicket(sale.receiptNumber)
+            val waMessage = "Hola Ana, desde el sistema administrativo noté que en el ticket #$formattedTicket se cobró ${sale.itemsSummary} a $currencySymbol ${String.format(Locale.US, "%.2f", sale.totalAmount)} (precio costo o con pérdida). Por favor verifica los márgenes autorizados antes de aplicar rebajas en mostrador. Saludos."
             val intent = Intent(Intent.ACTION_VIEW).apply {
               data = Uri.parse("https://api.whatsapp.com/send?text=${Uri.encode(waMessage)}")
             }

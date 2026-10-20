@@ -57,6 +57,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.ui.platform.LocalContext
+import com.example.util.ReportExportManager
+import com.example.util.formatConsecutiveTicket
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -216,6 +220,8 @@ fun SalesHistoryScreen(
   val totalFilteredAmount = remember(filteredSales) { filteredSales.sumOf { it.totalAmount } }
   val totalFilteredCount = filteredSales.size
   val avgTicket = if (totalFilteredCount > 0) totalFilteredAmount / totalFilteredCount else 0.0
+
+  val context = LocalContext.current
 
   LazyColumn(
     modifier = modifier
@@ -416,13 +422,13 @@ fun SalesHistoryScreen(
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
           Column {
             Text(
-              text = "FACTURADO",
+              text = "TOTAL FACTURADO",
               style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
@@ -433,7 +439,7 @@ fun SalesHistoryScreen(
             Text(
               text = "$cur ${String.format(Locale.US, "%,.2f", totalFilteredAmount)}",
               style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = PastelMintAccent
               )
@@ -442,41 +448,14 @@ fun SalesHistoryScreen(
 
           Box(
             modifier = Modifier
-              .height(26.dp)
-              .width(1.dp)
-              .background(PastelBorderSoft)
-          )
-
-          Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-              text = "VENTAS",
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = PastelTextSecondary,
-                letterSpacing = 0.5.sp
-              )
-            )
-            Text(
-              text = "$totalFilteredCount tickets",
-              style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = PastelLavenderAccent
-              )
-            )
-          }
-
-          Box(
-            modifier = Modifier
-              .height(26.dp)
+              .height(28.dp)
               .width(1.dp)
               .background(PastelBorderSoft)
           )
 
           Column(horizontalAlignment = Alignment.End) {
             Text(
-              text = "PROMEDIO",
+              text = "TICKET PROMEDIO",
               style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
@@ -487,7 +466,7 @@ fun SalesHistoryScreen(
             Text(
               text = "$cur ${String.format(Locale.US, "%,.2f", avgTicket)}",
               style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = PastelTextPrimary
               )
@@ -508,7 +487,7 @@ fun SalesHistoryScreen(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text(
-          text = "Transacciones registradas ($totalFilteredCount)",
+          text = "Transacciones Registradas",
           style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Bold,
             fontSize = 11.sp,
@@ -605,7 +584,10 @@ fun SalesHistoryScreen(
         SaleHistoryCard(
           sale = sale,
           currencySymbol = cur,
-          onClick = { selectedSaleForDetail = sale }
+          onClick = { selectedSaleForDetail = sale },
+          onShareWhatsApp = {
+            ReportExportManager.shareTicketViaWhatsApp(context, sale, cur)
+          }
         )
       }
     }
@@ -625,7 +607,8 @@ fun SalesHistoryScreen(
 fun SaleHistoryCard(
   sale: SaleEntity,
   currencySymbol: String,
-  onClick: () -> Unit
+  onClick: () -> Unit,
+  onShareWhatsApp: () -> Unit = {}
 ) {
   val dateFmt = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale("es", "MX")) }
   val (methodBg, methodColor, methodIcon) = when (PaymentMethod.fromCode(sale.paymentMethod)) {
@@ -647,7 +630,7 @@ fun SaleHistoryCard(
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
   ) {
     Column(modifier = Modifier.padding(14.dp)) {
-      // Fila Superior: Ticket # y Badge de Método de Pago
+      // Fila Superior: Ticket # y Badge de Método de Pago + WhatsApp
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -660,7 +643,7 @@ fun SaleHistoryCard(
             border = BorderStroke(1.dp, PastelBorderSoft)
           ) {
             Text(
-              text = "#${sale.receiptNumber}",
+              text = "#${formatConsecutiveTicket(sale.receiptNumber)}",
               style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 11.sp,
@@ -682,26 +665,57 @@ fun SaleHistoryCard(
           )
         }
 
-        // Badge Método de Pago
-        Surface(
-          shape = RoundedCornerShape(10.dp),
-          color = methodBg,
-          border = BorderStroke(1.dp, methodColor.copy(alpha = 0.3f))
-        ) {
-          Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+          // Botón rápido de compartir ticket en WhatsApp
+          Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = Color(0xFF25D366).copy(alpha = 0.12f),
+            border = BorderStroke(1.dp, Color(0xFF25D366).copy(alpha = 0.35f)),
+            modifier = Modifier.clickable { onShareWhatsApp() }
           ) {
-            Icon(imageVector = methodIcon, contentDescription = null, tint = methodColor, modifier = Modifier.size(11.dp))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-              text = sale.paymentMethod,
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 10.sp,
-                color = methodColor
+            Row(
+              modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Icon(
+                imageVector = Icons.Default.Chat,
+                contentDescription = "Compartir por WhatsApp",
+                tint = Color(0xFF25D366),
+                modifier = Modifier.size(11.dp)
               )
-            )
+              Spacer(modifier = Modifier.width(3.dp))
+              Text(
+                text = "WhatsApp",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 9.sp,
+                  color = Color(0xFF25D366)
+                )
+              )
+            }
+          }
+
+          // Badge Método de Pago
+          Surface(
+            shape = RoundedCornerShape(10.dp),
+            color = methodBg,
+            border = BorderStroke(1.dp, methodColor.copy(alpha = 0.3f))
+          ) {
+            Row(
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Icon(imageVector = methodIcon, contentDescription = null, tint = methodColor, modifier = Modifier.size(11.dp))
+              Spacer(modifier = Modifier.width(4.dp))
+              Text(
+                text = sale.paymentMethod,
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 10.sp,
+                  color = methodColor
+                )
+              )
+            }
           }
         }
       }
@@ -816,7 +830,9 @@ fun SaleDetailReceiptDialog(
   currencySymbol: String,
   onDismiss: () -> Unit
 ) {
+  val context = LocalContext.current
   val dateFmt = remember { SimpleDateFormat("EEEE dd 'de' MMMM yyyy, hh:mm a", Locale("es", "MX")) }
+  val formattedTicket = formatConsecutiveTicket(sale.receiptNumber)
 
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -840,7 +856,7 @@ fun SaleDetailReceiptDialog(
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = PastelTextPrimary)
           )
           Text(
-            text = "CAILIN STORE • Ticket #${sale.receiptNumber}",
+            text = "CAILIN STORE • Ticket #$formattedTicket",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp, color = PastelTextSecondary)
           )
         }
@@ -858,6 +874,7 @@ fun SaleDetailReceiptDialog(
           border = BorderStroke(1.dp, PastelBorderSoft)
         ) {
           Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            ReceiptRow(label = "N° Consecutivo", value = "#$formattedTicket")
             ReceiptRow(label = "Fecha y Hora", value = dateFmt.format(Date(sale.timestamp)))
             ReceiptRow(label = "Método de Pago", value = sale.paymentMethod)
             ReceiptRow(label = "Vendedor / Cajero", value = sale.sellerName.ifBlank { "Caja Principal" })
@@ -924,11 +941,28 @@ fun SaleDetailReceiptDialog(
     },
     confirmButton = {
       Button(
-        onClick = onDismiss,
-        colors = ButtonDefaults.buttonColors(containerColor = PastelLavenderAccent),
+        onClick = {
+          ReportExportManager.shareTicketViaWhatsApp(context, sale, currencySymbol)
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
         shape = RoundedCornerShape(12.dp)
       ) {
-        Text("Cerrar", color = Color.White, fontWeight = FontWeight.Bold)
+        Icon(
+          imageVector = Icons.Default.Chat,
+          contentDescription = null,
+          tint = Color.White,
+          modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+      }
+    },
+    dismissButton = {
+      TextButton(
+        onClick = onDismiss,
+        shape = RoundedCornerShape(12.dp)
+      ) {
+        Text("Cerrar", color = PastelTextSecondary, fontWeight = FontWeight.SemiBold)
       }
     }
   )
