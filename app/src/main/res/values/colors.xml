@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#0E8388</color>
+    <color name="primary_dark">#2E4F4F</color>
+    <color name="accent_teal">#2C74B3</color>
+    <color name="accent_cyan">#00E5FF</color>
+    <color name="bg_dark">#0B132B</color>
+    <color name="bg_light">#F5F7FA</color>
+    <color name="glass_surface_dark">#1F2B48</color>
+    <color name="glass_surface_light">#EAF0F6</color>
+    <color name="status_green">#00E676</color>
+    <color name="status_red">#FF5252</color>
+    <color name="status_amber">#FFD600</color>
+    <color name="status_blue">#40C4FF</color>
+    <color name="status_purple">#B388FF</color>
+    <color name="splash_background">#0B132B</color>
+</resources>

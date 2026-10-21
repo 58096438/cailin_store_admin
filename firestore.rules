@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Modo de prueba para sincronización inmediata de tiendas y terminales
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

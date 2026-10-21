@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cailin Store</string>
+    <string name="app_tagline">Moda &amp; Boutique Exclusiva</string>
+    
+    <!-- Navigation -->
+    <string name="nav_pos">Terminal POS</string>
+    <string name="nav_inventory">Prendas</string>
+    <string name="nav_sales">Ventas</string>
+    <string name="nav_cash">Caja</string>
+    <string name="nav_stats">Métricas</string>
+
+    <!-- General -->
+    <string name="action_search">Buscar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_swipe_confirm">Desliza para confirmar</string>
+</resources>

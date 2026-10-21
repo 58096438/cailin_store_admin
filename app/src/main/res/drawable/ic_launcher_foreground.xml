@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Fashion Clothes Hanger & Diamond / Boutique Logo -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M54,32 C57.3,32 60,34.7 60,38 C60,40.5 58.5,42.6 56.4,43.5 L78,54 C79.2,54.6 80,55.8 80,57.2 C80,59.3 78.3,61 76.2,61 L31.8,61 C29.7,61 28,59.3 28,57.2 C28,55.8 28.8,54.6 30,54 L51.6,43.5 C49.5,42.6 48,40.5 48,38 C48,34.7 50.7,32 54,32 Z M54,48 L35,57 L73,57 L54,48 Z" />
+    <!-- Luxury Diamond Top Accent -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M54,23 L59,29 L54,35 L49,29 Z" />
+    <!-- Boutique Bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,66 L74,66 L74,69 L34,69 Z" />
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M44,73 L64,73 L64,75 L44,75 Z" />
+</vector>

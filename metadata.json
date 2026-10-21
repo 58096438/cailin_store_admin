@@ -1,6 +1,6 @@
 {
   "name": "Cailin Store",
-  "description": "Sistema de administración de tienda de ropa, inventario de prendas, ventas y punto de venta POS para Cailin Store.",
+  "description": "Sistema de administración de tienda de ropa, inventario de prendas, ventas y punto de venta POS exclusivo para Cailin Store.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
